@@ -1,0 +1,288 @@
+age
+race
+gender
+attractive
+sincere
+intellicence
+funny
+ambition
+interests_correlate
+
+**Описание переменных в выбранном датасете:**
+
+ * wave (убираем)
+ * gender: Gender of self
+ * samegender: Difference in gender (добавить: 0 - если не same gender, 1 - same gender)
+ 
+ * age: Age of self  
+ * age_o: Age of partner  
+ * d_age: Difference in age
+ * d_d_age: Difference in age 
+ 
+ * race: Race of self  
+ * race_o: Race of partner  
+ * samerace: Whether the two persons have the same race or not. (0 - если не same race, 1 - same race)  
+ * importance_same_race: How important is it that partner is of same race? (от 0 до 10)  
+ * importance_same_religion: How important is it that partner has same religion? (от 0 до 10) 
+ * d_importance_same_race 
+ * d_importance_same_religion 
+ 
+ * field: Field of study 
+ 
+Насколько важна для твоего партнера та или иная категория?
+ В сумме 100 на все 6 категорий:
+ * pref_o_attractive: How important does partner rate attractiveness (от 0 до 100)  
+ * pref_o_sinsere: How important does partner rate sincerity  (от 0 до 60)
+ * pref_o_intelligence: How important does partner rate intelligence (от 0 до 50)
+ * pref_o_funny: How important does partner rate being funny (от 0 до 50)  
+ * pref_o_ambitious: How important does partner rate ambition (от 0 до 53)
+ * pref_o_shared_interests: How important does partner rate having shared interests (от 0 до 30) 
+ * d_pref_attractive_o 
+ * d_pref_sinsere_o
+ * d_pref_intelligence_o
+ * d_pref_funny_o
+ * d_pref_ambitious_o
+ * d_pref_shared_interests_o
+
+Как ты оцениваешь ту или иную категорию в партнере?
+В сумме 100 на все 6 категорий:
+ * attractive_important: What do you look for in a partner - attractiveness (от 0 до 100) 
+ * sincere_important: What do you look for in a partner - sincerity (от 0 до 60)
+ * intellicence_important: What do you look for in a partner - intelligence (от 0 до 50)
+ * funny_important: What do you look for in a partner - being funny (от 0 до 50)
+ * ambtition_important: What do you look for in a partner - ambition (от 0 до 53)
+ * shared_interests_important: What do you look for in a partner - shared interests (от 0 до 30)
+ * d_attractive_important
+ * d_sincere_important
+ * d_intellicence_important
+ * d_funny_important
+ * d_ambtition_important
+ * d_shared_interests_important
+ 
+ Парнтер оценивает тебя:
+ * attractive_o: Rating by partner (about me) at night of event on attractiveness (от 0 до 10,5) 
+ * sincere_o: Rating by partner (about me) at night of event on sincerity (от 0 до 10)  
+ * intelligence_o: Rating by partner (about me) at night of event on intelligence  (от 0 до 10) 
+ * funny_o: Rating by partner (about me) at night of event on being funny  (от 0 до 11) 
+ * ambitous_o: Rating by partner (about me) at night of event on being ambitious (от 0 до 10)   
+ * shared_interests_o: Rating by partner (about me) at night of event on shared interest (от 0 до 10) 
+
+ Ты оцениваешь себя:
+ * attractive: Rate yourself - attractiveness (от 2 до 10) 
+ * sincere: Rate yourself - sincerity (от 2 до 10) 
+ * intelligence: Rate yourself - intelligence (от 2 до 10) 
+ * funny: Rate yourself - being funny (от 3 до 10) 
+ * ambition: Rate yourself - ambition (от 2 до 10) 
+ 
+ Разница в самооценке по категориям:
+ * d_attractive
+ * d_sincere
+ * d_intelligence
+ * d_funny
+ * d_ambition 
+ 
+ Оцениваешь партнера:
+ * attractive_partner: Rate your partner - attractiveness (от 0 до 10) 
+ * sincere_partner: Rate your partner - sincerity (от 0 до 10)   
+ * intelligence_partner: Rate your partner - intelligence (от 0 до 10) 
+ * funny_partner: Rate your partner - being funny (от 0 до 10) 
+ * ambition_partner: Rate your partner - ambition (от 0 до 10)  
+ * shared_interests_partner: Rate your partner - shared interests (от 0 до 10) 
+ 
+!Не диф:
+ * d_attractive_partner
+ * d_sincere_partner   
+ * d_intelligence_partner 
+ * d_funny_partner 
+ * d_ambition_partner  
+ * d_shared_interests_partner
+
+ Your own interests:
+ * sports  (от 1 до 10)   
+ * tvsports (от 1 до 10)
+ * exercise (от 1 до 10)
+ * dining (от 1 до 10)
+ * museums (от 0 до 10)
+ * art (от 0 до 10)  
+ * hiking (от 0 до 10)  
+ * gaming (от 0 до 14)  
+ * clubbing (от 0 до 10)  
+ * reading (от 1 до 13)
+ * tv (от 1 до 10)  
+ * theater (от 0 до 10)  
+ * movies (от 0 до 10) 
+ * concerts (от 0 до 10)  
+ * music (от 1 до 10) 
+ * shopping (от 1 до 10) 
+ * yoga (от 0 до 10)
+ 
+ !Не диф:
+ * d_sports     
+ * d_tvsports
+ * d_exercise 
+ * d_dining 
+ * d_museums 
+ * d_art   
+ * d_hiking   
+ * d_gaming   
+ * d_clubbing 
+ * d_reading 
+ * d_tv  
+ * d_theater  
+ * d_movies 
+ * d_concerts  
+ * d_music  
+ * d_shopping 
+ * d_yoga 
+ 
+ * interests_correlate: Correlation between participant’s and partner’s ratings of interests.  
+ * expected_happy_with_sd_people: How happy do you expect to be with the people you meet during the speed-dating event?  
+ * expected_num_interested_in_me: Out of the 20 people you will meet, how many do you expect will be interested in dating you?  
+ * expected_num_matches: How many matches do you expect to get? 
+ * d_expected_happy_with_sd_people
+ * d_expected_num_interested_in_me
+ * d_expected_num_matches
+ 
+ * like: Did you like your partner?  
+ * guess_prob_liked: How likely do you think it is that your partner likes you?
+ 
+ * d_like  
+ * d_guess_prob_liked
+ 
+ * met: Have you met your partner before?  
+ * decision: Decision at night of event.
+ * decision_o: Decision of partner at night of event.  
+ * match: Match (yes/no)
+
+```{r}
+# Загружаем данные
+library(dplyr)
+dating = read.csv("~/speed-dating.csv")
+```
+
+```{r}
+# Характеристики по столбцам
+summary(dating)
+str(dating)
+```
+
+```{r}
+# NA
+sum(is.na(dating)) #кол-во пропущенных значений
+colSums(is.na(dating)) #кол-во пропущенных значений в каждом столбце
+sort(colSums(is.na(dating)), decreasing = TRUE) #кол-во пропущенных значений в каждом столбце от наибольшего к наименьшему
+```
+
+
+```{r}
+df_na = dating[, colSums(is.na(dating)) > 0] # те столбцы, где есть хотя бы одно NA
+colnames(df_na) # столбцы, где есть хотя бы одно NA
+
+which(is.na(dating$age))
+```
+
+```{r}
+# Характеристики по numeric и character
+summary(select(dating, where(is.numeric)))
+summary(select(dating, where(is.character)))
+
+unique(dating$wave)
+```
+
+```{r}
+# Графики
+library(ggplot2)
+ggplot(dating, aes(x = age)) +
+  geom_histogram(binwidth = 1, fill = "skyblue", color = "black") +
+  labs(title = "Distribution of Age")
+```
+
+
+```{r}
+#Распределение по полу
+ggplot(dating, aes(x = gender)) +
+  geom_bar(fill = "#65A6D1", color = "black") +
+  labs(title = "Gender Distribution")+
+  # Добавляем текстовую аннотацию
+  geom_text(stat = 'count', aes(label=..count..), vjust=1.5, color="black")
+```
+
+
+```{r}
+library(plotly)
+
+# Создаем график с помощью plot_ly
+plot_ly(data = dating, x = ~gender, type = "histogram", marker = list(color = "#65A6D1", line = list(color = "black"))) %>%
+  layout(title = "Gender Distribution")
+
+table(dating$gender)
+```
+
+
+```{r}
+# Характеристика по каждому столбцу
+column_information = function(data, column_name) {
+  column <- data[[column_name]]
+  unique_values <- paste(length(unique(column)), "unique values")
+  data_type <- class(column)
+  missing <- paste(sum(is.na(column)), "NA")
+  c(data_type, missing, unique_values)
+}
+
+column_information(dating, "age")
+```
+
+```{r}
+# Более осознанная работа с NA
+df_withoutNA = na.omit(dating) # убрали все NA
+
+df_withoutNA_hobbies = dating[!is.na(dating$sports), ] #убрали NA из столбцов с интересами
+
+sort(colSums(is.na(df_withoutNA_hobbies)), decreasing = TRUE)
+```
+
+```{r}
+# Оставляем в датафрейм только столбцы с хобби
+df_hobbies <- subset(df_withoutNA_hobbies, select = c(sports, tvsports, exercise, dining, museums, art, hiking, gaming, clubbing, reading, tv, theater, movies, concerts, music, shopping, yoga))
+
+# Считаем средний рейтинг для каждой категории
+df_mean <- data.frame(interest = colnames(df_hobbies), mean_rating = colMeans(df_hobbies, na.rm = TRUE))
+
+# Строим график распределения средней оценки интереса по каждой категории
+ggplot(df_mean, aes(x = reorder(interest, -mean_rating), y = mean_rating)) +
+  geom_bar(stat = 'identity', fill = '#65A6D1') +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  labs(x = "Interests", y = "Average interest", title = "Average Interest Rating by Activity")
+```
+
+```{r}
+# Преобразуем все столбцы датафрейма
+df_without_punctiation <- df_withoutNA_hobbies %>%
+  mutate_all(~ gsub("'", "", .))
+
+# Предполагаю, что ваш датафрейм называется df
+field_count <- df_without_punctiation %>% 
+  group_by(field) %>% 
+  summarize(count = n())
+
+ggplot(field_count, aes(x = reorder(field, -count), y = count)) +
+  geom_bar(stat = 'identity', fill = '#65A6D1') +
+  coord_flip() +
+  labs(x = 'Field', y = 'Count', title = 'Distribution of Fields') +
+  theme_light() 
+
+
+#Выводим топ-20
+# Подсчитываем количество каждого значения в поле и оставляем топ 20
+field_count <- df_without_punctiation %>% 
+  group_by(field) %>% 
+  summarize(count = n()) %>% 
+  top_n(20, count)
+
+# Строим график
+ggplot(field_count, aes(x = reorder(field, -count), y = count)) +
+  geom_bar(stat = 'identity', fill = '#65A6D1') +
+  coord_flip() +
+  labs(x = 'Field', y = 'Count', title = 'Top 20 Distribution of Fields') +
+  theme_light() 
+```

@@ -9,13 +9,6 @@
 
 library(shiny)
 
-writableForm <- function(elemId, elemDesc, min, max) {
-  sliderInput(elemId,
-              elemDesc,
-              min = min,
-              max = max,
-              value = round((min + max)/2, 0))
-}
 
 # Define UI for application that draws a histogram
 ui <- fluidPage(
@@ -31,37 +24,129 @@ ui <- fluidPage(
             radioButtons("gender", label = "Пол",
                          choices = list("М" = 1, "Ж" = 2), 
                          selected = 1),
+            textInput("field", label = "Область, в которой вы работаете", placeholder = "Область"),
             
-            sliderInput("Q1",
-                        "Number of bins:",
+            textInput("undergra", label = "Университет, в котором обучались/учитесь", placeholder = "Название университета"),
+            
+            numericInput("mn_sat", label = "средний балл SAT", value = 0),
+            
+            sliderInput("imprace",
+                        "Насколько для вас важно (по шкале от 1 до 10), чтобы человек, с которым вы встречаетесь, был того же расового/этнического происхождения?",
                         min = 1,
                         max = 10,
-                        value = 5)
+                        value = 5),
+            sliderInput("imprelig",
+                        "Насколько для вас важно (по шкале от 1 до 10), чтобы человек, с которым вы встречаетесь, был того же религиозного происхождения?",
+                        min = 1,
+                        max = 10,
+                        value = 5),
+            helpText(h3("Насколько вам интересны следующие виды деятельности по шкале от 1 до 10?")),
+            
+            sliderInput("sports",
+                        "Занятия спортом/легкая атлетика",
+                        min = 1,
+                        max = 10,
+                        value = 5),
+            
+            sliderInput("tv_sports",
+                        "Просмотр спортивных передач",
+                        min = 1,
+                        max = 10,
+                        value = 5),
+            sliderInput("exercise",
+                        "Занятия бодибилдингом/физические нагрузки",
+                        min = 1,
+                        max = 10,
+                        value = 5),
+            sliderInput("museums",
+                        "Музеи/галереи",
+                        min = 1,
+                        max = 10,
+                        value = 5),
+            sliderInput("art",
+                        "Исскусство",
+                        min = 1,
+                        max = 10,
+                        value = 5),
+            sliderInput("hiking",
+                        "Пешие прогулки/кемпинг",
+                        min = 1,
+                        max = 10,
+                        value = 5),
+            sliderInput("gaming",
+                        "Гейминг",
+                        min = 1,
+                        max = 10,
+                        value = 5),
+            sliderInput("clubbing",
+                        "Танцы",
+                        min = 1,
+                        max = 10,
+                        value = 5),
+            sliderInput("reading",
+                        "Чтение",
+                        min = 1,
+                        max = 10,
+                        value = 5),
+            sliderInput("tv",
+                        "Просмотр телевизора",
+                        min = 1,
+                        max = 10,
+                        value = 5),
+            sliderInput("theater",
+                        "Театр",
+                        min = 1,
+                        max = 10,
+                        value = 5),
+            sliderInput("movies",
+                        "Фильмы",
+                        min = 1,
+                        max = 10,
+                        value = 5),
+            sliderInput("music",
+                        "Музыка",
+                        min = 1,
+                        max = 10,
+                        value = 5),
+            sliderInput("shopping",
+                        "Шоппинг",
+                        min = 1,
+                        max = 10,
+                        value = 5),
+            sliderInput("yoga",
+                        "Йога/медитация",
+                        min = 1,
+                        max = 10,
+                        value = 5),
+            
+            actionButton("send", "Готово")
         ),
 
         # Show a plot of the generated distribution
         mainPanel(
-           plotOutput("distPlot")
+          DT::dataTableOutput("table")
         )
     )
 )
 
+df = data.frame(sports = c(1), music = c(2))
+print(df)
+
 # Define server logic required to draw a histogram
 server <- function(input, output) {
-
-    output$distPlot <- renderPlot({
-        # generate bins based on input$bins from ui.R
-        x    <- faithful[, 2]
-        bins <- seq(min(x), max(x), length.out = input$Q1 + 1)
-
-        # draw the histogram with the specified number of bins
-        hist(x, breaks = bins, col = 'darkgray', border = 'white',
-             xlab = 'Waiting time to next eruption (in mins)',
-             main = 'Histogram of waiting times')
-    })
-    
-    output$age <- renderPrint({ input$age })
-    output$gender <- renderPrint({ input$gender })
+  
+  rv <- reactiveVal(df)
+  
+  output$table <- DT::renderDT(rv())
+  
+  observeEvent(input$send, {
+    # Логика обработки введенных пользователем данных
+    newdf <- rv()
+    newdf[nrow(newdf) + 1,] = c(input$sports, input$music)
+    rv(newdf)
+    df <<- rv()
+    #shinyjs::reset("side-panel")
+  })
 }
 
 # Run the application 
