@@ -1,0 +1,322 @@
+---
+title: "Minor Project Speeddating"
+output: html_document
+date: "2024-03-24"
+---
+Загружаем библиотеки и датасет:
+```{r}
+library(readr)
+library(dplyr)
+library(stringr)
+library(purrr)
+sd = read.csv("../../resources/new_data_speeddating.csv")
+```
+
+Отбираем только нужные по смыслу переменные:
+```{r}
+sd_bruh = sd %>% select(iid, gender, wave, pid, int_corr, samerace, age, field_cd, undergra, mn_sat, tuition, imprace, imprelig, from, income, goal, date, go_out, career_c, sports, tvsports, exercise, dining, museums, art, hiking, gaming, clubbing, reading, tv, theater, movies, concerts, music, shopping, yoga, exphappy, expnum, attr1_1, sinc1_1, intel1_1, fun1_1, amb1_1, shar1_1, attr4_1, sinc4_1, intel4_1, fun4_1, amb4_1, shar4_1, attr2_1, sinc2_1, intel2_1, fun2_1, amb2_1, shar2_1, attr3_1, sinc3_1, intel3_1, fun3_1, amb3_1, attr5_1, sinc5_1, intel5_1, fun5_1, amb5_1, dec, attr, sinc, intel, fun, amb, shar, like, prob, match_es, match)
+```
+
+# Описание выбранных нами переменных:
+> Общие вопросы:
+
+* **iid** -- уникальный номер для каждого человека вне зависимости от волны
+* **gender** -- гендер человека 
+  + (0 --  женщина, 1 -- мужчина)
+* **wave** -- номер волны
+* **pid** -- id партнера
+* **int_corr** -- корреляция между рейтингами участников и партнеров по интересам в первый раз
+* **samerace** -- совпадение расы 
+  + (1 -- совпадение, 0 -- несовпадение)
+* **age** -- возраст
+* **field_cd** -- код сферы учебы 
+  + (1 -- Law, 2 -- Math, 3 -- Social Science/Psychologist, 4 -- Medical Science/Pharmaceutical and Bio Tech, 5 -- Engineering, 6 -- English/Creative Writing/Journalism, 7 -- History/Religion/Philosophy, 8 -- Business/Econ/Finance, 9 -- Education/Academia, 10 -- Biological Sciences/Chemistry/Physics, 11 -- Social Work, 12 -- Undergrad/undecided, 13 -- Political Science/International Affairs, 14 -- Film, 15 -- Fine Arts/Arts Administration, 16 -- Languages, 17 -- Architecture, 18 -- Other)
+* **undergra** -- университет
+* **mn_sat** -- средний балл SAT
+* **tuition** -- стоимость обучения в университете
+* **imprace** -- Насколько для вас важно (по шкале от 1 до 10), чтобы человек, с которым вы встречаетесь, был того же расового/этнического происхождения? 
+* **imprelig** -- Насколько для вас важно (по шкале от 1 до 10), чтобы человек, с которым вы встречаетесь, был того же религиозного происхождения?
+* **from** -- страна или город откуда ты приехал в Columbia
+* **income** -- Средний доход домохозяйства на основе почтового индекса с использованием веб-сайта Бюро переписи населения: http://venus.census.gov/cdrom/lookup/CMD=LIST/DB=C90STF3B/LEV=ZIP. Если доход отсутствует, это означает, что они либо из-за границы, либо не указали свой почтовый индекс.
+
+> Персональные вопросы:
+
+* **goal** -- Какова ваша основная цель участия в этом мероприятии? 
+  + (Вам показалось, что это был веселый вечер -- 1, Познакомиться с новыми людьми -- 2, Назначить свидание -- 3, Ищу серьезные отношения -- 4, Сказать, что у меня получилось -- 5, Другое -- 6).
+* date -- Как часто вы ходите на свидания? (Несколько раз в неделю -- 1, Два раза в неделю -- 2, Раз в неделю -- 3, Два раза в месяц -- 4, Раз в месяц -- 5, Несколько раз в год -- 6, Почти никогда -- 7).
+* **go_out** -- Как часто вы ходите куда-нибудь (не обязательно на свидания)? 
+  + (Несколько раз в неделю -- 1, Два раза в неделю -- 2, Раз в неделю -- 3, Два раза в месяц -- 4, Раз в месяц -- 5, Несколько раз в год -- 6, Почти никогда -- 7).
+* **career_c** -- Какую карьеру вы планируете сделать? 
+  + (1 -- Юрист, 2 -- Академик/исследователь, 3 -- Психолог, 4 -- Врач/Медицина, 5 -- Инженер, 6 -- Творчество/Развлечения, 7 -- Банковское дело/Консалтинг/Финансы/Маркетинг/Бизнес/Генеральный директор/Предприниматель/Администратор, 8 -- Недвижимость, 9 -- Международные/гуманитарные вопросы, 10 -- Не определились, 11 -- Социальная работа, 12 -- Патология речи, 13 -- Политика, 14 -- Профессиональный спорт/Атлетика, 15 -- Другое, 16 -- Журналистика, 17 -- Архитектура).
+
+> Вопросы про хобби:
+
+Насколько вам интересны следующие виды деятельности по шкале от 1 до 10?
+
+* **sports** -- Занятия спортом/легкая атлетика
+* **tv sports** -- Просмотр спортивных
+* **exercise** -- Занятия бодибилдингом/физические нагрузки
+* **dining** -- Рестораны вне
+* **museums** -- Музеи/галереи
+* **art** -- Художественные
+* **hiking** -- Пешие прогулки/кемпинг
+* **gaming** -- Гейминг
+* **clubbing** --  Танцы
+* **reading** -- Чтение
+* **tv** -- Просмотр телевизора
+* **theater** -- Театр
+* **movies** -- Фильмы
+* **concerts** -- Посещение концертов
+* **music** -- Музыка
+* **shopping** -- Шоппинг
+* **yoga** -- Йога/медитация
+
+> Общие вопросы про партнера:
+
+* **exphappy** -- В целом, оцените по шкале от 1 до 10, насколько счастливыми вы ожидаете быть с людьми, с которыми познакомитесь во время спиддейтинга?
+* **expnum** -- Как вы думаете, сколько из 20 человек, с которыми вы познакомитесь, будут заинтересованы в том, чтобы встречаться с вами?
+
+> Персональные вопросы про партнера:
+
+Мы хотим знать, что вы ищете в представителях противоположного пола.
+
+Волны 6-9: Пожалуйста, оцените важность следующих качеств для потенциального свидания по шкале от 1 до 10 (1 -- совсем не важно, 10 -- чрезвычайно важно).
+
+Волны 1-5, 10-21: У вас есть 100 баллов, которые нужно распределить между следующими атрибутами - дайте больше баллов тем атрибутам, которые более важны для потенциальной даты, и меньше баллов тем атрибутам, которые менее важны для потенциальной даты.  Общее количество баллов должно равняться 100.
+
+* **attr1_1** -- Привлекательный
+* **sinc1_1** -- Искренний
+* **intel1_1** -- Интеллектуальный
+* **fun1_1** -- Веселый
+* **amb1_1** -- Амбициозный
+* **shar1_1** -- Имеет общие интересы/хобби
+
+Теперь мы хотим узнать, что, по вашему мнению, большинство ваших знакомых мужчин и женщин ищут в представителях противоположного пола.
+
+Волны 6-9: Оцените, пожалуйста, важность следующих признаков по шкале 1-10 (1 -- не важно, 10 -- очень важно).
+
+Волны 10-21: У вас есть 100 баллов, которые вы должны распределить между следующими признаками - поставьте больше баллов тем признакам, которые, по вашему мнению, ваши коллеги мужчины/женщины считают более важными в потенциальном свидании, и меньше баллов тем признакам, которые они считают менее важными в потенциальном свидании.Общее количество баллов должно быть равно 100.
+
+* **attr4_1**  -- Привлекательный
+* **sinc4_1** -- Искренний
+* **intel4_1** -- Интеллектуальный
+* **fun4_1** -- Веселый
+* **amb4_1** -- Амбициозный
+* **shar4_1** -- Имеет общие интересы/хобби
+
+Как вы думаете, что противоположный пол ищет в свидании/дейтинге?
+
+Волны 6-9: Оцените, пожалуйста, важность следующих атрибутов по шкале 1-10 (1 -- совсем не важно, 10 -- очень важно).
+
+Волны 1-5 и 10-21: Распределите, пожалуйста, 100 баллов между следующими характеристиками - дайте больше баллов тем характеристикам, которые, по вашему мнению, более важны для представителей противоположного пола, когда они решают, встречаться ли с кем-то.Общее количество баллов должно быть равно 100.
+
+* **attr2_1**  -- Привлекательный
+* **sinc2_1** -- Искренний
+* **intel2_1** -- Интеллектуальный
+* **fun2_1** -- Веселый
+* **amb2_1** -- Амбициозный
+* **shar2_1** -- Имеет общие интересы/хобби
+
+Как, по-вашему, вы оцениваете себя?
+
+Пожалуйста, оцените свои качества по шкале от 1 до 10 (будьте честны!).
+
+* **attr3_1**  -- Привлекательный
+* **sinc3_1** -- Искренний
+* **intel3_1** -- Интеллектуальный
+* **fun3_1** -- Веселый
+* **amb3_1** -- Амбициозный
+
+И наконец, как, по вашему мнению, вас воспринимают другие?
+
+Пожалуйста, оцените себя так, как, по вашему мнению, другие оценили бы вас по каждому из следующих признаков, по шкале от 1 до 10 (1 -- отвратительно, 10 -- отлично).
+
+* **attr5_1**  -- Привлекательный
+* **sinc5_1** -- Искренний
+* **intel5_1** -- Интеллектуальный
+* **fun5_1** -- Веселый
+* **amb5_1** -- Амбициозный
+
+Обведите кружком "Да" или "Нет" под идентификационным номером каждого встреченного вами человека, чтобы указать, хотели бы вы увидеть его снова.
+
+Оцените их качества по шкале 1-10: (1 -- отвратительно, 10 -- превосходно). Если вы не сформировали своего мнения на основе беседы, укажите N/A, но, пожалуйста, заполните все поля. Это будет абсолютно конфиденциально и никому не будет передано.Затем ответьте на оставшиеся вопросы для каждого человека, с которым вы познакомились.
+
+* **dec** -- оценивает партнера (1 -- хочет увидеть партнера еще раз, 0 -- не хочет больше видеть партнера)
+
+Оценка партнера по 10-ти балльной шкале.
+
+* **attr** -- Привлекательный
+* **sinc** -- Искренний
+* **intel** -- Интеллектуальный
+* **fun** -- Веселый
+* **amb** -- Амбициозный
+* **shar** -- Имеет общие интересы/хобби
+
+
+* **like** -- В целом, насколько вам нравится ваше партнер? (1 -- не нравится совсем, 10 -- очень нравится)
+
+Разделим наш датасет на датасеты меньше (первый -- информация про самих пользователей, второй -- информация про свидания из анкеты):
+```{r}
+sd_user <- sd[, c('iid', 'gender', 'pid', 'age_o', 'race_o', 'age', 'field', 'undergra', 'mn_sat', 'tuition', 'race', 'from', 'goal', 'date', 'go_out', 'career', 'sports', 'tvsports', 'exercise', 'dining', 'museums', 'art', 'hiking', 'gaming', 'clubbing', 'reading', 'tv', 'theater', 'movies', 'concerts', 'music', 'shopping', 'yoga')]
+vars_index <- match(names(sd_user), names(sd))
+sd_date <- sd[,-vars_index]
+```
+
+> Немного описательной статистики для того, чтобы понимать, с какими данными мы вообще работаем:
+
+```{r}
+#Распределение возраста участников speeddating
+library(ggplot2)
+ggplot(sd_user, aes(x = age)) +
+  geom_histogram(binwidth = 1, fill = "#65A6D1", color = "white") +
+  labs(title = "Distribution of Age")
+```
+```{r}
+#Распределение по полу
+ggplot(sd_user, aes(x = gender)) +
+  geom_bar(fill = "#65A6D1", color = "white") +
+  labs(title = "Gender Distribution")+
+  # Добавляем текстовую аннотацию
+  geom_text(stat = 'count', aes(label=..count..), vjust=1.5, fill = "#65A6D1")
+```
+```{r}
+#Приводим к одному регистру переменные в солбце field
+sd_user$field <- tolower(sd_user$field)
+```
+
+
+```{r}
+# Считаем кол-во
+field_count <- sd_user %>% 
+  group_by(field) %>% 
+  summarize(count = n())
+
+#Выводим топ-20
+# Подсчитываем количество каждого значения в поле и оставляем топ 20
+field_count <- sd_user %>% 
+  group_by(field) %>% 
+  summarize(count = n()) %>% 
+  top_n(20, count)
+
+# Строим график
+ggplot(field_count, aes(x = reorder(field, -count), y = count)) +
+  geom_bar(stat = 'identity', fill = '#65A6D1') +
+  coord_flip() +
+  labs(x = 'Field', y = 'Count', title = 'Top 20 Distribution of Fields') +
+  theme_light()
+```
+```{r}
+sd_bruh$mn_sat = as.numeric(sd_bruh$mn_sat)
+sd_bruh$tuition = as.numeric(sd_bruh$tuition)
+sd_bruh$income = as.numeric(sd_bruh$income)
+```
+
+Объединяем ряды между собой в длинный датасет
+Теперь в одном ряду у нас сразу два пользователя и данные об их Паре
+```{r}
+sd1 = sd_bruh
+sd2 = sd_bruh
+sd1$couple_1 = paste(sd1$iid, sd1$pid)
+sd2$couple_2 = paste(sd2$pid, sd_bruh$iid)
+sd_new = left_join(sd1, sd2, by = join_by(couple_1 == couple_2))
+```
+
+Сейчас у нас в 2 раза больше набоюдений чем нужно, так как они замерджились дважды (через pid-iid и iid-pid)
+```{r}
+sd_fin = sd_new %>% select(couple_1)
+length(unique(sd_fin$couple_1))
+```
+Создадим новый датасет с разницами по всем переменным, где это имеет смысл 
+```{r}
+sd_fin = sd_fin %>% mutate(match = sd_new$match.x,
+                           int_corr = sd_new$int_corr.x,
+                           race_dif = if_else(sd_new$samerace.x == 0,1,0),
+                           age_dif = abs(sd_new$age.x - sd_new$age.y),
+                           field_cd_dif = if_else(sd_new$field_cd.x == sd_new$field_cd.y,0,1),
+                           undergrd_dif = if_else(sd_new$undergra.x == sd_new$undergra.y,0,1),
+                           #mn_sat_dif = abs(sd_new$mn_sat.x - sd_new$mn_sat.y),
+                           #tuition_dif = abs(sd_new$tuition.x - sd_new$tuition.y),
+                           imprace_dif = abs(sd_new$imprace.x - sd_new$imprace.y),
+                           imprelig_dif = abs(sd_new$imprelig.x - sd_new$imprelig.y),
+                           from_dif = if_else(sd_new$from.x == sd_new$from.y,0,1),
+                           #income_dif = abs(sd_new$income.x - sd_new$income.y),
+                           goal_dif = if_else(sd_new$goal.x == sd_new$goal.y,0,1),
+                           date_dif = abs(sd_new$date.x - sd_new$date.y),
+                           go_out_dif = abs(sd_new$go_out.x - sd_new$go_out.y),
+                           career_c_dif = if_else(sd_new$career_c.x == sd_new$career_c.y,0,1),
+                           sports_dif = abs(sd_new$sports.x - sd_new$sports.y),
+                           tvsports_dif = abs(sd_new$tvsports.x - sd_new$tvsports.y),
+                           exercise_dif = abs(sd_new$exercise.x - sd_new$exercise.y),
+                           dining_dif = abs(sd_new$dining.x - sd_new$dining.y),
+                           museums_dif = abs(sd_new$museums.x - sd_new$museums.y),
+                           art_dif = abs(sd_new$art.x - sd_new$art.y),
+                           hiking_dif = abs(sd_new$hiking.x - sd_new$hiking.y),
+                           gaming_dif = abs(sd_new$gaming.x - sd_new$gaming.y),
+                           clubbing_dif = abs(sd_new$clubbing.x - sd_new$clubbing.y),
+                           reading_dif = abs(sd_new$reading.x - sd_new$reading.y),
+                           tv_dif = abs(sd_new$tv.x - sd_new$tv.y),
+                           theater_dif = abs(sd_new$theater.x - sd_new$theater.y),
+                           movies_dif = abs(sd_new$movies.x - sd_new$movies.y),
+                           concerts_dif = abs(sd_new$concerts.x - sd_new$concerts.y),
+                           music_dif = abs(sd_new$music.x - sd_new$music.y),
+                           shopping_dif = abs(sd_new$shopping.x - sd_new$shopping.y),
+                           yoga_dif = abs(sd_new$yoga.x - sd_new$yoga.y),
+                           exphappy_dif = abs(sd_new$exphappy.x - sd_new$exphappy.y),
+                           #expnum_dif = abs(sd_new$expnum.x - sd_new$expnum.y),
+                           attr1_1_dif = abs(sd_new$attr1_1.x - sd_new$attr1_1.y),
+                           sinc1_1_dif = abs(sd_new$sinc1_1.x - sd_new$sinc1_1.y),
+                           intel1_1_dif = abs(sd_new$intel1_1.x - sd_new$intel1_1.y),
+                           fun1_1_dif = abs(sd_new$fun1_1.x - sd_new$fun1_1.y),
+                           amb1_1_dif = abs(sd_new$amb1_1.x - sd_new$amb1_1.y),
+                           shar1_1_dif = abs(sd_new$shar1_1.x - sd_new$shar1_1.y),
+                           #attr4_1_dif = abs(sd_new$attr4_1.x - sd_new$attr4_1.y),
+                           #sinc4_1_dif = abs(sd_new$sinc4_1.x - sd_new$sinc4_1.y),
+                           #intel4_1_dif = abs(sd_new$intel4_1.x - sd_new$intel4_1.y),
+                           #fun4_1_dif = abs(sd_new$fun4_1.x - sd_new$fun4_1.y),
+                           #amb4_1_dif = abs(sd_new$amb4_1.x - sd_new$amb4_1.y),
+                           #shar4_1_dif = abs(sd_new$shar4_1.x - sd_new$shar4_1.y),
+                           attr2_1_dif = abs(sd_new$attr2_1.x - sd_new$attr2_1.y),
+                           sinc2_1_dif = abs(sd_new$sinc2_1.x - sd_new$sinc2_1.y),
+                           intel2_1_dif = abs(sd_new$intel2_1.x - sd_new$intel2_1.y),
+                           fun2_1_dif = abs(sd_new$fun2_1.x - sd_new$fun2_1.y),
+                           amb2_1_dif = abs(sd_new$amb2_1.x - sd_new$amb2_1.y),
+                           shar2_1_dif = abs(sd_new$shar2_1.x - sd_new$shar2_1.y),
+                           attr3_1_dif = abs(sd_new$attr3_1.x - sd_new$attr3_1.y),
+                           sinc3_1_dif = abs(sd_new$sinc3_1.x - sd_new$sinc3_1.y),
+                           intel3_1_dif = abs(sd_new$intel3_1.x - sd_new$intel3_1.y),
+                           fun3_1_dif = abs(sd_new$fun3_1.x - sd_new$fun3_1.y),
+                           amb3_1_dif = abs(sd_new$amb3_1.x - sd_new$amb3_1.y),
+                           attr2_1_dif = abs(sd_new$attr2_1.x - sd_new$attr2_1.y),
+                           sinc2_1_dif = abs(sd_new$sinc2_1.x - sd_new$sinc2_1.y),
+                           intel2_1_dif = abs(sd_new$intel2_1.x - sd_new$intel2_1.y),
+                           fun2_1_dif = abs(sd_new$fun2_1.x - sd_new$fun2_1.y),
+                           amb2_1_dif = abs(sd_new$amb2_1.x - sd_new$amb2_1.y)
+                           )
+```
+
+Уберём повторяющиеся пары (а-ля 1-11 и 11-1)
+```{r}
+sd_fin$couple_1 = str_split(sd_fin$couple_1, " ")
+sd_fin$couple_1 = lapply(sd_fin$couple_1, as.numeric)
+sd_fin$couple_1 = lapply(sd_fin$couple_1, sort)
+sd_fin = distinct(sd_fin)
+```
+Вернём привычный вид ID
+```{r}
+sd_fin$id_1 = sapply(sd_fin$couple_1,"[[",1)
+sd_fin$id_2 = map(sd_fin$couple_1, 2)
+sd_fin = sd_fin %>% select(-couple_1)
+```
+
+Избавимся от NA
+```{r}
+colSums(is.na(sd_fin))
+sd_fin = na.omit(sd_fin)
+
+sd_fin$id_2 = as.numeric(sd_fin$id_2)
+```
+Итого у нас 3943 уникальных пары 
+```{r}
+write.csv(sd_fin, "../../resources/speeddating_merged.csv")
+```
+
