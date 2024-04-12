@@ -63,6 +63,4 @@ server <- function(input, output) {
     output$age <- renderPrint({ input$age })
     output$gender <- renderPrint({ input$gender })
 }
-
-# Run the application 
-shinyApp(ui = ui, server = server)
+d
