@@ -129,23 +129,24 @@ ui <- fluidPage(
     )
 )
 
-df = data.frame(sports = c(1), music = c(2))
-print(df)
+df = data.frame(sports = integer(), music = integer())
 
 # Define server logic required to draw a histogram
 server <- function(input, output) {
   
   rv <- reactiveVal(df)
   
+  
   output$table <- DT::renderDT(rv())
   
   observeEvent(input$send, {
     # Логика обработки введенных пользователем данных
     newdf <- rv()
-    newdf[nrow(newdf) + 1,] = c(input$sports, input$music)
-    rv(newdf)
-    df <<- rv()
-    #shinyjs::reset("side-panel")
+    if (nrow(newdf) < 2) {
+      newdf[nrow(newdf) + 1,] = c(input$sports, input$music)
+      rv(newdf)
+      df <<- rv()
+    }
   })
 }
 
