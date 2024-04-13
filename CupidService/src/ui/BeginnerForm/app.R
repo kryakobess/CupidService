@@ -11,14 +11,18 @@ library(shiny)
 
 
 # Define UI for application that draws a histogram
-ui <- fluidPage(
+ui <- navbarPage(
 
-    # Application title
-    titlePanel("Old Faithful Geyser Data"),
-
+    title = "Cupid",
+    inverse = TRUE,
+    
     # Sidebar with a slider input for number of bins 
-    sidebarLayout(
-        sidebarPanel(
+    tabPanel(title = "Connectivity Test",
+      div(id = "conForm",align="center",
+          shinyjs::useShinyjs(),
+        p(h3("Заполнение анкет")),
+        p("Сначала нужно заполнить анкету про себя, затем про своего партнера"),
+        
             numericInput("age", label = "Возраст", value = 18),
             
             radioButtons("gender", label = "Пол",
@@ -40,7 +44,8 @@ ui <- fluidPage(
                         min = 1,
                         max = 10,
                         value = 5),
-            helpText(h3("Насколько вам интересны следующие виды деятельности по шкале от 1 до 10?")),
+        
+            helpText("Насколько вам интересны следующие виды деятельности по шкале от 1 до 10?"),
             
             sliderInput("sports",
                         "Занятия спортом/легкая атлетика",
@@ -119,13 +124,11 @@ ui <- fluidPage(
                         max = 10,
                         value = 5),
             
-            actionButton("send", "Готово")
-        ),
-
-        # Show a plot of the generated distribution
-        mainPanel(
-          DT::dataTableOutput("table")
-        )
+            uiOutput("doneButton")
+      ),
+      div(id = "conResult", align = "center",
+        h3(textOutput("conResult"))
+      )
     )
 )
 
@@ -136,16 +139,24 @@ server <- function(input, output) {
   
   rv <- reactiveVal(df)
   
-  
   output$table <- DT::renderDT(rv())
   
-  observeEvent(input$send, {
+  output$doneButton <- renderUI(
+    actionButton("doneButton", label = ifelse(nrow(rv()) < 1, "Отправить свою анкету", "Отправить анкету партнера"))
+  )
+  
+  observeEvent(input$doneButton, {
     # Логика обработки введенных пользователем данных
-    newdf <- rv()
-    if (nrow(newdf) < 2) {
-      newdf[nrow(newdf) + 1,] = c(input$sports, input$music)
-      rv(newdf)
-      df <<- rv()
+    newdf = rv()
+    print(newdf)
+    newdf[nrow(newdf) + 1,] = c(input$sports, input$music)
+    rv(newdf)
+    df <<- rv()
+    if (nrow(newdf) == 2) {
+      shinyjs::hide(id = "conForm")
+      output$conResult = renderText(
+        "ЗДЕСЬ БУДЕТ ВЫВОДИТЬСЯ РЕЗУЛЬТАТ"
+      )
     }
   })
 }
