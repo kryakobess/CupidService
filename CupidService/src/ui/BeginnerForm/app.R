@@ -3,6 +3,7 @@ library(readr)
 library(dplyr)
 library(stringr)
 library(purrr)
+library(DBI)
 #install.packages("randomForest")
 library(randomForest)
 library(stats)
@@ -11,44 +12,6 @@ library(stats)
 #install.packages("rpart")
 library(themis)
 library(rpart.plot)
-
-fitModel <- function() {
-  #train ds preprocessing
-  sd_fin = read_csv("../../../resources/speeddating_merged.csv")
-  sd_fin = sd_fin %>% mutate(match = factor(match, levels = c(1, 0)))
-  sd_fin_id = sd_fin
-  sd_fin = sd_fin %>% select(-'...1', -id_1, -id_2)
-  
-  set.seed(18)
-  split = initial_split(sd_fin)
-  sd_Train = training(split)
-  
-  #weights
-  table(sd_Train$match)
-  table(sd_Train$match)[2]/table(sd_Train$match)[1]
-  
-  sdTrainPositive = sd_Train %>% filter(match == 1)
-  
-  sdTrainWeighted = sd_Train
-  for (i in 1:3){
-    sdTrainWeighted = rbind(sdTrainWeighted, sdTrainPositive)
-  }
-  sdTrainWeighted_trimmed = sdTrainWeighted %>% select(match, int_corr, age_dif, imprace_dif, imprelig_dif, sports_dif, tvsports_dif, exercise_dif, gaming_dif, clubbing_dif, reading_dif,  shopping_dif ,yoga_dif,  attr1_1_dif  ,sinc1_1_dif, 
-                                                       intel1_1_dif, fun1_1_dif, amb1_1_dif,  shar1_1_dif, attr2_1_dif, sinc2_1_dif, intel2_1_dif,
-                                                       fun2_1_dif, amb2_1_dif, shar2_1_dif)
-  #model
-  rf4 = rand_forest(mode = "classification") %>%
-    set_engine('randomForest')
-  
-  wf_rf4 = workflow() %>%
-    add_model(rf4) %>%
-    add_formula(match ~ .)
-  
-  #fitting
-  wf_rf4 = wf_rf4 %>% fit(sdTrainWeighted_trimmed)
-  return(wf_rf4)
-}
-
 
 ui <- navbarPage(
     title = "Cupid",
@@ -256,47 +219,101 @@ ui <- navbarPage(
             uiOutput("doneButton")
       ),
       div(id = "conResult", align = "center",
-        h3(textOutput("conResult"))
+        h3(textOutput("conResult")),
+        uiOutput("continueFormButton")
+      ),
+      
+      div(id = "registerForm", align = "center",
+          h3("Желаете зарегистрировать аккаунт?"),
+          radioButtons("order_input", label = "Какими по счету вы вводили данные о себе?",
+                       choices = list("1" = 1, "2" = 2), 
+                       selected = 1),
+          textInput("username", label = "Введите имя пользователя"),
+          textInput("password", label = "Введите пароль"),
+          actionButton("registerButton", "Подтвердить регистрацию")
       )
     )
 )
 
-df = data.frame(
-  age = integer(),
-  gender = integer(),
-  sports = integer(),
-  tv_sports = integer(),
-  exercise = integer(),
-  gaming = integer(),
-  clubbing = integer(),
-  reading = integer(),
-  shopping = integer(),
-  yoga = integer(),
-  museums = integer(),
-  art = integer(),
-  hiking = integer(),
-  tv = integer(),
-  theater = integer(),
-  movies = integer(),
-  concerts = integer(),
-  music = integer(),
-  attr = integer(),
-  sinc = integer(),
-  intel = integer(),
-  fun = integer(),
-  amb = integer(),
-  shar = integer(),
-  attr_a = integer(),
-  sinc_a = integer(),
-  intel_a = integer(),
-  fun_a = integer(),
-  amb_a = integer(),
-  shar_a = integer(),
-  imprace = integer(),
-  imprelig = integer()
-)
+fitModel <- function() {
+  #train ds preprocessing
+  sd_fin = read_csv("../../../resources/speeddating_merged.csv")
+  sd_fin = sd_fin %>% mutate(match = factor(match, levels = c(1, 0)))
+  sd_fin_id = sd_fin
+  sd_fin = sd_fin %>% select(-'...1', -id_1, -id_2)
+  
+  set.seed(18)
+  split = initial_split(sd_fin)
+  sd_Train = training(split)
+  
+  #weights
+  table(sd_Train$match)
+  table(sd_Train$match)[2]/table(sd_Train$match)[1]
+  
+  sdTrainPositive = sd_Train %>% filter(match == 1)
+  
+  sdTrainWeighted = sd_Train
+  for (i in 1:3){
+    sdTrainWeighted = rbind(sdTrainWeighted, sdTrainPositive)
+  }
+  sdTrainWeighted_trimmed = sdTrainWeighted %>% select(match, int_corr, age_dif, imprace_dif, imprelig_dif, sports_dif, tvsports_dif, exercise_dif, gaming_dif, clubbing_dif, reading_dif,  shopping_dif ,yoga_dif,  attr1_1_dif  ,sinc1_1_dif, 
+                                                       intel1_1_dif, fun1_1_dif, amb1_1_dif,  shar1_1_dif, attr2_1_dif, sinc2_1_dif, intel2_1_dif,
+                                                       fun2_1_dif, amb2_1_dif, shar2_1_dif)
+  #model
+  rf4 = rand_forest(mode = "classification") %>%
+    set_engine('randomForest')
+  
+  wf_rf4 = workflow() %>%
+    add_model(rf4) %>%
+    add_formula(match ~ .)
+  
+  #fitting
+  wf_rf4 = wf_rf4 %>% fit(sdTrainWeighted_trimmed)
+  return(wf_rf4)
+}
 
+createEmptyInputDf <- function() {
+  return(
+    data.frame(
+      age = integer(),
+      gender = integer(),
+      sports = integer(),
+      tv_sports = integer(),
+      exercise = integer(),
+      gaming = integer(),
+      clubbing = integer(),
+      reading = integer(),
+      shopping = integer(),
+      yoga = integer(),
+      museums = integer(),
+      art = integer(),
+      hiking = integer(),
+      tv = integer(),
+      theater = integer(),
+      movies = integer(),
+      concerts = integer(),
+      music = integer(),
+      attr = integer(),
+      sinc = integer(),
+      intel = integer(),
+      fun = integer(),
+      amb = integer(),
+      shar = integer(),
+      attr_a = integer(),
+      sinc_a = integer(),
+      intel_a = integer(),
+      fun_a = integer(),
+      amb_a = integer(),
+      shar_a = integer(),
+      imprace = integer(),
+      imprelig = integer()
+    )
+  )
+}
+
+df = createEmptyInputDf()
 wf_rf4 = fitModel()
+mydb <- dbConnect(RSQLite::SQLite(), "../../../resources/cupid.db")
 
 getPartnerInterestsArray <- function(input_df, i) {
   return(
@@ -374,7 +391,15 @@ calcConnectivity <- function(input_test) {
   return(predtest.rf4_prob$.pred_1)
 }
 
+saveUser <- function(username, password) {
+  rs <- dbSendStatement(mydb, 'INSERT INTO User (username, password) VALUES (:username, :password)')
+  dbBind(rs, params = list(username = username, password = password))
+  return(rs)
+}
+
 server <- function(input, output) {
+  #hide until form is completed
+  shinyjs::hide(id = "registerForm")
   
   rv <- reactiveVal(df)
   
@@ -403,14 +428,32 @@ server <- function(input, output) {
       diff_df = mapInputDfToDiff(newdf)
       pred_prob = calcConnectivity(diff_df) * 100
       output$conResult = renderText(
-        paste(
-          "Ваш процент совместимости:\n",
-          pred_prob, "%",
-          sep=""
-          )
+        paste("Ваш процент совместимости:", pred_prob, "%", sep="")
+      )
+      output$continueFormButton = renderUI(
+        actionButton("continueFormButton", label = "Продолжить")
       )
     }
   })
+  
+  observeEvent(input$continueFormButton, {
+    shinyjs::hide(id = "conResult")
+    shinyjs::show(id = "registerForm")
+  })
+  
+  observeEvent(input$registerButton, {
+    shinyjs::hide(id = "registerForm")
+    newdf = rv()
+    
+    user = saveUser(input$username, input$password)
+    print(user)
+    i = as.numeric(input$order_input)
+    user_feature = cbind(id = user$id, newdf[i,])
+    print(user_feature)
+    
+  })
+  
+  
 }
 
 # Run the application 
