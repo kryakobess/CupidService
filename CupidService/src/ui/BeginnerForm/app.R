@@ -311,7 +311,6 @@ createEmptyInputDf <- function() {
   )
 }
 
-df = createEmptyInputDf()
 wf_rf4 = fitModel()
 mydb <- dbConnect(RSQLite::SQLite(), "../../../resources/cupid.db")
 
@@ -397,9 +396,24 @@ saveUser <- function(username, password) {
   return(rs)
 }
 
+getUserByUsername <- function(username) {
+  rs <- dbSendQuery(mydb, 'SELECT * FROM USER WHERE username = :username')
+  dbBind(rs, params = list(username = username))
+  user = dbFetch(rs)
+  
+  return(user)
+}
+
+saveFeatures <- function(feature) {
+  rs <- dbAppendTable(mydb, "USER_FEATURES", feature)
+  print(dbGetQuery(mydb, "SELECT * FROM USER_FEATURES"))
+}
+
 server <- function(input, output) {
   #hide until form is completed
   shinyjs::hide(id = "registerForm")
+  
+  df = createEmptyInputDf()
   
   rv <- reactiveVal(df)
   
@@ -441,17 +455,26 @@ server <- function(input, output) {
     shinyjs::show(id = "registerForm")
   })
   
+  userSession = NULL
+  
   observeEvent(input$registerButton, {
     shinyjs::hide(id = "registerForm")
     newdf = rv()
     
-    user = saveUser(input$username, input$password)
-    print(user)
-    i = as.numeric(input$order_input)
-    user_feature = cbind(id = user$id, newdf[i,])
-    print(user_feature)
+    saveUser(input$username, input$password)
     
+    i = as.numeric(input$order_input)
+    user = getUserByUsername(input$username)
+    
+    user_feature = cbind(id = user$id, newdf[i,])
+    
+    saveFeatures(user_feature)
+    
+    userSession = user
+    
+    df = createEmptyInputDf()
   })
+  
   
   
 }
