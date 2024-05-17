@@ -17,6 +17,7 @@ CREATE TABLE USER_FEATURES(
     shopping integer,
     yoga integer,
     museums integer,
+    go_out integer,
     art integer,
     hiking integer,
     tv integer,
@@ -38,4 +39,9 @@ CREATE TABLE USER_FEATURES(
     shar_a integer,
     imprace integer,
     imprelig integer
+);
+
+CREATE TABLE USER_LIKE(
+  from_id integer,
+  to_id integer
 );
