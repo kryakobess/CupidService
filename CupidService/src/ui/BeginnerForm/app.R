@@ -177,11 +177,42 @@ showDatingApp <- function() {
     ),
     
     div(id = "datingApp",
-        tableOutput("datePredictedResult"),
-        div(id = "DatingAppButtons", style="margin: 25px",
-          uiOutput("dateDislikeButton"),
-          uiOutput("dateLikeButton")
+        
+        div(id ="dateResult", align="center",
+            p(verbatimTextOutput("date_res_age")),
+            p(verbatimTextOutput("date_res_imprace")),
+            p(verbatimTextOutput("date_res_imprelig")),
+            p(verbatimTextOutput("date_res_go_out")),
+            p(verbatimTextOutput("date_res_sports")),
+            p(verbatimTextOutput("date_res_tvsports")),
+            p(verbatimTextOutput("date_res_exercise")),
+            p(verbatimTextOutput("date_res_gaming")),
+            p(verbatimTextOutput("date_res_clubbing")),
+            p(verbatimTextOutput("date_res_reading")),
+            p(verbatimTextOutput("date_res_shopping")),
+            p(verbatimTextOutput("date_res_yoga")),
+            p(verbatimTextOutput("date_res_attr1_1")),
+            p(verbatimTextOutput("date_res_sinc1_1")),
+            p(verbatimTextOutput("date_res_intel1_1")),
+            p(verbatimTextOutput("date_res_fun1_1")),
+            p(verbatimTextOutput("date_res_amb1_1")),
+            p(verbatimTextOutput("date_res_shar1_1")),
+            p(verbatimTextOutput("date_res_attr2_1")),
+            p(verbatimTextOutput("date_res_sinc2_1")),
+            p(verbatimTextOutput("date_res_intel2_1")),
+            p(verbatimTextOutput("date_res_fun2_1")),
+            p(verbatimTextOutput("date_res_amb2_1")),
+            p(verbatimTextOutput("date_res_shar2_1"))
+        ),
+        div(id = "DatingAppButtons", align = "center",
+            uiOutput("dateDislikeButton"),
+            uiOutput("dateLikeButton") 
+        ),
+        uiOutput("dateListButton"),
+        div(id = "datelist", align = "center",
+            div(style = 'overflow-x: scroll', dataTableOutput('date_liked'))
         )
+        
     )
     
   )
@@ -358,6 +389,39 @@ saveUser <- function(username, password) {
   rs <- dbSendStatement(mydb, 'INSERT INTO User (username, password) VALUES (:username, :password)')
   dbBind(rs, params = list(username = username, password = password))
   return(rs)
+}
+
+saveUserLike <- function(from, to) {
+  rs <- dbSendStatement(mydb, 'INSERT INTO USER_LIKE (from_id, to_id) VALUES (:from, :to)')
+  dbBind(rs, params = list(from = from, to = to))
+  return(rs)
+}
+
+getAllLikesByFromId <- function(from_id) {
+  rs <- dbSendQuery(mydb, 'SELECT * FROM USER_LIKE WHERE from_id = :from_id')
+  dbBind(rs, params = list(from_id = from_id))
+  res = dbFetch(rs)
+  print(res)
+  return(res)
+}
+
+getAllFeaturesByUserIdIn <- function(ids) {
+  rs <- dbSendQuery(mydb, 'SELECT * FROM USER_FEATURES WHERE id in :ids')
+  dbBind(rs, params = list(ids = ids))
+  res = dbFetch(rs)
+  print(res)
+  return(res)
+} 
+
+getLikedUserFeatures <- function(from_id) {
+  to_ids = getAllLikesByFromId(from_id) %>% select(to_id)
+  if (!is.null(to_ids$id)) {
+    if (length(to_ids&id) != 0) {
+      print(paste("to ids:"))
+      print(to_ids$id)
+      return(getAllFeaturesByUserIdIn(to_ids$id))
+    }
+  }
 }
 
 getUserByUsername <- function(username) {
@@ -586,8 +650,6 @@ getPredictions <- function(user) {
     
     res_with_iid = merge(pred_user_0, df_with_iid, by="iid") %>% select(-id.x, -id.y) %>% mutate(id = -1)
     res_with_id = merge(pred_user_0, df_with_id, by="id") %>% select(-iid.x, -iid.y) %>% mutate(iid = -id)
-    print(res_with_id)
-    print(res_with_iid)
     
     res = rbind(res_with_iid, res_with_id) %>% arrange(-pred_user_0$.pred_1) %>% select(-iid, -.pred_1, -.pred_0)
     return(res)
@@ -601,8 +663,7 @@ onDatingAppStart <- function(input, output, user) {
   
   predictions = getPredictions(user)
   
-  
-  output$datePredictedResult <- renderTable(predictions[1, ])
+  provideDateResultToOutput(output, predictions[1, ])
   
   output$dateLikeButton <- renderUI(
     actionButton("dateLikeButton", "❤️", style="float:right")
@@ -610,8 +671,60 @@ onDatingAppStart <- function(input, output, user) {
   output$dateDislikeButton <- renderUI(
     actionButton("dateDislikeButton", "❌",  style="float:left")
   )
+  output$dateListButton <- renderUI(
+    actionButton("dateListButton", "💌")
+  )
   
-  return(predictions[-1, ])
+  return(predictions)
+}
+
+getOutputTextForVar <- function(text, val) {
+  return(
+    renderText({
+      paste(text, toString(val), sep = '\n')
+    })
+  )
+}
+
+changeResColNames <- function(res) {
+  colnames(res) = c("Возраст", "Насколько человеку важна расса партнера", "Насколько человеку важна религия партнера",
+                     "Нравятся прогулки", "Нравится спорт", "Нравится смотреть спортивные передачи", 
+                     "Нравится заниматься физическими упражнениями", "Нравится играть в видеоигры",
+                     "Нравится проводить время в клубах", "Нравится читать книги", "Нравится шоппинг",
+                     "Нравится йога", "Важна привлекательность партнера", "Важна искренность партнера",
+                     "Важен интеллект партнера", "Важно чувство юмора партнера", "Важна амбициозность партнера","Важно наличие общих интересов с партнером",
+                     "Важно, чтобы партнер ценил привлекательность", "Важно, чтобы партнер ценил искренность",
+                     "Важно, чтобы партнер ценил интеллект", "Важно, чтобы партнер ценил чувство юмора",
+                     "Важно, чтобы партнер ценил амбициозность", "Важно, чтобы партнер ценил наличие общих интересов", "id")
+  print(colnames(res))
+  return(res)
+}
+
+provideDateResultToOutput <- function(output, nextRow) {
+  output$date_res_age = getOutputTextForVar("Возраст", nextRow$age)
+  output$date_res_imprace = getOutputTextForVar("Насколько человеку важна расса партнера", nextRow$imprace)
+  output$date_res_imprelig = getOutputTextForVar("Насколько человеку важна религия партнера", nextRow$imprace)
+  output$date_res_go_out = getOutputTextForVar("Нравятся прогулки", nextRow$go_out)
+  output$date_res_sports = getOutputTextForVar("Нравится спорт", nextRow$sports)
+  output$date_res_tvsports = getOutputTextForVar("Нравится смотреть спортивные передачи", nextRow$tvsports)
+  output$date_res_exercise = getOutputTextForVar("Нравится заниматься физическими упражнениями", nextRow$exercise)
+  output$date_res_gaming = getOutputTextForVar("Нравится играть в видеоигры", nextRow$gaming)
+  output$date_res_clubbing = getOutputTextForVar("Нравится проводить время в клубах", nextRow$clubbing)
+  output$date_res_reading = getOutputTextForVar("Нравится читать книги", nextRow$reading)
+  output$date_res_shopping = getOutputTextForVar("Нравится шоппинг", nextRow$shopping)
+  output$date_res_yoga = getOutputTextForVar("Нравится йога", nextRow$yoga)
+  output$date_res_attr1_1 = getOutputTextForVar("Важна привлекательность партнера", nextRow$attr1_1)
+  output$date_res_sinc1_1 = getOutputTextForVar("Важна искренность партнера", nextRow$sinc1_1)
+  output$date_res_intel1_1 = getOutputTextForVar("Важен интеллект партнера", nextRow$intel1_1)
+  output$date_res_fun1_1 = getOutputTextForVar("Важно чувство юмора партнера", nextRow$fun1_1)
+  output$date_res_amb1_1 = getOutputTextForVar("Важна амбициозность партнера", nextRow$amb1_1)
+  output$date_res_shar1_1 = getOutputTextForVar("Важно наличие общих интересов с партнером", nextRow$shar1_1)
+  output$date_res_attr2_1 = getOutputTextForVar("Важно, чтобы партнер ценил привлекательность", nextRow$attr2_1)
+  output$date_res_sinc2_1 = getOutputTextForVar("Важно, чтобы партнер ценил искренность", nextRow$sinc2_1)
+  output$date_res_intel2_1 = getOutputTextForVar("Важно, чтобы партнер ценил интеллект", nextRow$intel2_1)
+  output$date_res_fun2_1 = getOutputTextForVar("Важно, чтобы партнер ценил чувство юмора", nextRow$fun2_1)
+  output$date_res_amb2_1 = getOutputTextForVar("Важно, чтобы партнер ценил амбициозность", nextRow$amb2_1)
+  output$date_res_shar2_1 = getOutputTextForVar("Важно, чтобы партнер ценил наличие общих интересов", nextRow$shar2_1)
 }
 
 server <- function(input, output, session) {
@@ -683,6 +796,7 @@ server <- function(input, output, session) {
   
   #Dating app tab
   predictions = NULL
+  unreal_likes = NULL
   shinyjs::hide(id = "dateRegistrationForm")
   shinyjs::hide(id = "dateAuthWindow")
   
@@ -731,22 +845,75 @@ server <- function(input, output, session) {
       print("is null")
       predictions <<- reactiveVal(getPredictions(user))
       print("AFTER QUERY")
+      predDf = predictions()
+    } else {
+      predDf = predictions()
+      predDf = predDf[-1, ]
     }
     
-    predDf = predictions()
-    print(predDf)
-    
-    print("NEXT:")
     nextRow = predDf[1, ]
-    print(nextRow)
-    
-    output$datePredictedResult = renderTable(nextRow)
+    provideDateResultToOutput(output, nextRow)
     
     predDf = predDf[-1, ]
     predictions(predDf)
   })
   
-  
+  observeEvent(input$dateListButton, {
+    user = userSession()
+    real_likes = getLikedUserFeatures(user$id)
+    resDf = NULL
+    if (!is.null(unreal_likes)) {
+      if (!is.null(real_likes)) {
+        resDf = rbind(real_likes, unreal_likes())
+        print("mixed")
+      } else {
+        resDf = unreal_likes()
+        print("unreal")
+      }
+    } else {
+        resDf = real_likes
+        print("real")
+    }
+    print(resDf)
+    if (!is.null(resDf)) {
+      resDf = changeResColNames(resDf)
+      output$date_liked = renderDataTable(resDf) 
+    }
+  })
+
+  observeEvent(input$dateLikeButton, {
+    user = userSession()
+    predDf = predictions()
+    
+    curRow = predDf[1, ]
+    #logic
+    if (curRow$id != -1) {
+      saveUserLike(user$id, curRow$id)
+    } else {
+      if (is.null(unreal_likes)) {
+        unreal_likes <<- reactiveVal(curRow)
+      } else {
+        unreal_likes_df = unreal_likes()
+        unreal_likes_df = rbind(unreal_likes_df, curRow)
+        print("unreal_likes_df")
+        print(unreal_likes_df)
+        unreal_likes(unreal_likes_df)
+      }
+    }
+    
+    #showNext
+    predDf = predDf[-1, ]
+    if (is.null(predictions()) | nrow(predictions()) == 0) {
+      print("is null")
+      predictions <<- reactiveVal(getPredictions(user))
+      print("AFTER QUERY")
+      predDf = predictions()
+    }
+    nextRow = predDf[1, ]
+    provideDateResultToOutput(output, nextRow)
+    
+    predictions(predDf)
+  })
   
 }
 

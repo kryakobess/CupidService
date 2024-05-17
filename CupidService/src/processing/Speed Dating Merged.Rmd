@@ -10,6 +10,9 @@ library(dplyr)
 library(stringr)
 library(purrr)
 sd = read.csv("../../resources/new_data_speeddating.csv")
+
+sd1 = sd[1, ]
+sd1 = rbind(sd1, sd[2, ])
 ```
 
 Отбираем только нужные по смыслу переменные:
