@@ -247,7 +247,7 @@ fitModel <- function() {
   for (i in 1:3){
     sdTrainWeighted = rbind(sdTrainWeighted, sdTrainPositive)
   }
-  sdTrainWeighted_trimmed = sdTrainWeighted %>% select(match, int_corr, age_dif, imprace_dif, imprelig_dif, sports_dif, tvsports_dif, exercise_dif, gaming_dif, clubbing_dif, reading_dif,  shopping_dif ,yoga_dif,  attr1_1_dif  ,sinc1_1_dif, 
+  sdTrainWeighted_trimmed = sdTrainWeighted %>% select(match, age_dif, imprace_dif, imprelig_dif, sports_dif, tvsports_dif, exercise_dif, gaming_dif, clubbing_dif, reading_dif,  shopping_dif ,yoga_dif,  attr1_1_dif  ,sinc1_1_dif, 
                                                        intel1_1_dif, fun1_1_dif, amb1_1_dif,  shar1_1_dif, attr2_1_dif, sinc2_1_dif, intel2_1_dif,
                                                        fun2_1_dif, amb2_1_dif, shar2_1_dif)
   #model
@@ -314,16 +314,8 @@ getPartnerInterestsArray <- function(input_df, i) {
   )
 }
 
-calcIntCor <- function(input_df) {
-  first_int = getPartnerInterestsArray(input_df, 1)
-  second_int = getPartnerInterestsArray(input_df, 2)
-  cor_res = cor(first_int, second_int)
-  return(ifelse(is.na(cor_res), 0, cor_res))
-}
-
 mapInputDfToDiff <- function(input_df) {
   diff_df = data.frame(
-    int_corr = integer(),
     age_dif = integer(),
     imprace_dif = integer(),
     imprelig_dif = integer(),
@@ -350,7 +342,6 @@ mapInputDfToDiff <- function(input_df) {
     shar2_1_dif = integer()
   )
   
-  diff_df[1,]$int_corr = calcIntCor(input_df)
   diff_df[1,]$age_dif = abs(as.numeric(input_df[1,]$age) - as.numeric(input_df[2,]$age))
   diff_df[1,]$imprace_dif = abs(as.numeric(input_df[1,]$imprace) - as.numeric(input_df[2,]$imprace))
   diff_df[1,]$imprelig_dif = abs(as.numeric(input_df[1,]$imprelig) - as.numeric(input_df[2,]$imprelig))
