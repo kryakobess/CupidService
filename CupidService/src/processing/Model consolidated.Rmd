@@ -1,0 +1,169 @@
+---
+title: "Model consolidated"
+output: html_document
+date: "2024-04-21"
+---
+
+
+```{r}
+library(readr)
+library(dplyr)
+library(stringr)
+library(purrr)
+#install.packages("randomForest")
+library(randomForest)
+library(stats)
+library(tidyverse)
+#install.packages("themis")
+#install.packages("rpart.plot")
+#install.packages("rpart")
+library(themis)
+library(rpart.plot)
+```
+
+```{r}
+sd_fin = read_csv("~/Desktop/D/speeddating_merged.csv")
+```
+
+```{r}
+sd_fin = sd_fin %>% mutate(match = factor(match, levels = c(1, 0)))
+sd_fin_id = sd_fin
+sd_fin = sd_fin %>% select(-'...1', -id_1, -id_2)
+```
+
+
+```{r}
+set.seed(18)
+split = initial_split(sd_fin)
+sd_Train = training(split)
+sd_Test  = testing(split)
+```
+
+
+#Weights
+
+```{r}
+table(sd_Train$match)
+table(sd_Train$match)[2]/table(sd_Train$match)[1]
+
+sdTrainPositive = sd_Train %>% filter(match == 1)
+
+sdTrainWeighted = sd_Train
+for (i in 1:3){
+  sdTrainWeighted = rbind(sdTrainWeighted, sdTrainPositive)
+}
+
+table(sdTrainWeighted$match)[2]/table(sdTrainWeighted$match)[1]
+```
+## 1) Decision Tree
+
+```{r}
+
+#Пока ещё не обучали модель, просто описываем какую модель мы хотим - Cпецифицируем
+tree = decision_tree(mode = "classification") %>%
+  set_engine("rpart")
+
+tree.wf = workflow() %>%
+   add_formula(match ~ .) %>%
+   add_model(tree) %>%
+   fit(sdTrainWeighted)
+
+rpart.plot(tree.wf$fit$fit$fit)
+
+
+predictions.on.train = tree.model.weighted %>%
+  predict(sd_Train)
+
+c_mat = sd_Train %>%
+  cbind(predictions.on.train) %>%
+  conf_mat(match, .pred_class)
+
+c_mat %>% summary()
+
+
+predictions.on.test = tree.model.weighted %>%
+  predict(sd_Test)
+
+c_mat = sd_Test %>%
+  cbind(predictions.on.test) %>%
+  conf_mat(match, .pred_class)
+
+c_mat %>% summary()
+```
+
+## 2) RF
+Упрощенное с вероятностями 
+
+```{r}
+rf3 = rand_forest(mode = "classification", trees = 25, mtry = 3) %>%
+  set_engine('randomForest')
+
+wf_rf3 = workflow() %>%
+  add_model(rf3) %>%
+  add_formula(match ~ .) %>%
+  fit(sdTrainWeighted)
+
+predtrain.rf3 = predict(wf_rf3, sd_Train)
+predtest.rf3 = predict(wf_rf3, sd_Test)
+accuracyTrain.rf3 =
+  accuracy_vec(sd_Train$match, predtrain.rf3$.pred_class)
+
+accuracyTest.rf3 =
+  accuracy_vec(sd_Test$match, predtest.rf3$.pred_class)
+
+library(vip)
+#1)
+ vip(wf_rf$fit$fit$fit)
+ 
+ 
+# Вероятности 
+predtrain.rf3_prob = predict(wf_rf3, sd_Train, type = "prob")
+predtest.rf3_prob = predict(wf_rf3, sd_Test, type = "prob")
+```
+
+```{r}
+importance = as.data.frame(randomForest::importance(wf_rf3$fit$fit$fit))
+```
+
+
+По важности:
+
+```{r}
+important_var = importance %>% filter(importance$MeanDecreaseGini >= quantile(importance$MeanDecreaseGini, 0.5))
+important_var = important_var %>% rownames_to_column()
+important_var_list = important_var$rowname
+```
+
+
+```{r}
+sdTrainWeighted_trimmed = sdTrainWeighted %>% select(match, int_corr, age_dif, imprace_dif, imprelig_dif, sports_dif, tvsports_dif, exercise_dif, gaming_dif, clubbing_dif, reading_dif,  shopping_dif ,yoga_dif,  attr1_1_dif  ,sinc1_1_dif, 
+intel1_1_dif, fun1_1_dif, amb1_1_dif,  shar1_1_dif, attr2_1_dif, sinc2_1_dif, intel2_1_dif,
+fun2_1_dif, amb2_1_dif, shar2_1_dif)
+#install.packages("randomForest")
+rf4 = rand_forest(mode = "classification") %>%
+  set_engine('randomForest')
+
+wf_rf4 = workflow() %>%
+  add_model(rf4) %>%
+  add_formula(match ~ .) %>%
+  fit(sdTrainWeighted_trimmed)
+
+predtrain.rf4 = predict(wf_rf4, sd_Train)
+predtest.rf4 = predict(wf_rf4, sd_Test)
+predtrain.rf4_prob = predict(wf_rf4, sd_Train, type = "prob")
+predtest.rf4_prob = predict(wf_rf4, sd_Test, type = "prob")
+
+accuracyTrain.rf4 =
+  accuracy_vec(sd_Train$match, predtrain.rf4$.pred_class)
+
+accuracyTest.rf4 =
+  accuracy_vec(sd_Test$match, predtest.rf4$.pred_class)
+
+ vip(wf_rf4$fit$fit$fit)
+
+```
+
+```{r}
+
+```
+

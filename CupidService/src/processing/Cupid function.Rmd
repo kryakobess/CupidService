@@ -1,0 +1,134 @@
+---
+title: "Cupid function"
+output: html_document
+date: "2024-05-15"
+---
+
+```{r}
+cupid = function(iid = 0,  age = 18, imprace = 5, imprelig = 5, go_out = 5 , sports = 5, tvsports = 5, exercise = 5, gaming = 5, clubbing = 5, reading = 5, shopping = 5, yoga = 5, attr1_1 = 20, sinc1_1 = 20, intel1_1 = 20, fun1_1 = 20, amb1_1 = 10, shar1_1 = 10, attr2_1 = 20, sinc2_1 = 20 , intel2_1 = 20, fun2_1 = 20, amb2_1 = 10, shar2_1 = 10) {
+  
+  library(dplyr)
+  
+  user_info = data.frame(iid = iid,  age = age, imprace = imprace, imprelig = imprelig, go_out = go_out , sports =
+                         sports, tvsports = tvsports, exercise = exercise, gaming = gaming, clubbing = clubbing,
+                         reading = reading, shopping = shopping, yoga = yoga, attr1_1 = attr1_1, sinc1_1 = sinc1_1,
+                         intel1_1 = intel1_1, fun1_1 = fun1_1, amb1_1 = amb1_1, shar1_1 = shar1_1, attr2_1 =
+                         attr2_1, sinc2_1 = sinc2_1 , intel2_1 = intel2_1, fun2_1 = fun2_1, amb2_1 = amb2_1, shar2_1 =
+                         shar2_1)
+  sd = read.csv("~/Desktop/D/speeddating.csv")
+  load("~/Desktop/rf_model_cupid.RData")
+        
+        
+  sd_difs_count = sd %>% select(iid, pid, age, imprace, imprelig, go_out, sports, tvsports, exercise, gaming, clubbing,
+                                reading, shopping, yoga, attr1_1, sinc1_1, intel1_1, fun1_1, amb1_1, shar1_1, attr2_1,
+                                sinc2_1, intel2_1, fun2_1, amb2_1, shar2_1, match)
+  table(is.na(sd_difs_count))
+  sd_difs_count = na.omit(sd_difs_count)
+  
+        
+  user_info = user_info %>% mutate(attr1_1 = (attr1_1 - min(sd_difs_count$attr1_1))/(max(sd_difs_count$attr1_1) -
+                                                                                       min(sd_difs_count$attr1_1)))
+  user_info = user_info %>% mutate(attr2_1 = (attr2_1 - min(sd_difs_count$attr2_1))/(max(sd_difs_count$attr2_1) -
+                                                                                       min(sd_difs_count$attr2_1)))
+
+  user_info = user_info %>% mutate(sinc1_1 = (sinc1_1 - min(sd_difs_count$sinc1_1))/(max(sd_difs_count$sinc1_1) -
+                                                                                       min(sd_difs_count$sinc1_1)))
+  user_info = user_info %>% mutate(sinc2_1 = (sinc2_1 - min(sd_difs_count$sinc2_1))/(max(sd_difs_count$sinc2_1) -
+                                                                                       min(sd_difs_count$sinc2_1)))
+
+  user_info = user_info %>% mutate(intel1_1 = (intel1_1 - min(sd_difs_count$intel1_1))/(max(sd_difs_count$intel1_1) -
+                                                                                          min(sd_difs_count$intel1_1)))
+  user_info = user_info %>% mutate(intel2_1 = (intel2_1 - min(sd_difs_count$intel2_1))/(max(sd_difs_count$intel2_1) -
+                                                                                          min(sd_difs_count$intel2_1)))
+
+  user_info = user_info %>% mutate(fun1_1 = (fun1_1 - min(sd_difs_count$fun1_1))/(max(sd_difs_count$fun1_1) - 
+                                                                                    min(sd_difs_count$fun1_1)))
+  user_info = user_info %>% mutate(fun2_1 = (fun2_1 - min(sd_difs_count$fun2_1))/(max(sd_difs_count$fun2_1) -
+                                                                                    min(sd_difs_count$fun2_1)))
+
+  user_info = user_info %>% mutate(amb1_1 = (amb1_1 - min(sd_difs_count$amb1_1))/(max(sd_difs_count$amb1_1) -
+                                                                                    min(sd_difs_count$amb1_1)))
+  user_info = user_info %>% mutate(amb2_1 = (amb2_1 - min(sd_difs_count$amb2_1))/(max(sd_difs_count$amb2_1) -
+                                                                                    min(sd_difs_count$amb2_1)))
+
+  user_info = user_info %>% mutate(shar1_1 = (shar1_1 - min(sd_difs_count$shar1_1))/(max(sd_difs_count$shar1_1) -
+                                                                                       min(sd_difs_count$shar1_1)))
+  user_info = user_info %>% mutate(shar2_1 = (shar2_1 - min(sd_difs_count$shar2_1))/(max(sd_difs_count$shar2_1) -
+                                                                                       min(sd_difs_count$shar2_1)))
+        
+  sd_difs_count = sd_difs_count %>% distinct(iid, .keep_all = TRUE)
+
+  sd_difs_count = sd_difs_count %>% mutate(attr1_1 = (attr1_1 - min(sd_difs_count$attr1_1))/(max(sd_difs_count$attr1_1) -
+                                                                                              min(sd_difs_count$attr1_1)))
+  sd_difs_count = sd_difs_count %>% mutate(attr2_1 = (attr2_1 - min(sd_difs_count$attr2_1))/(max(sd_difs_count$attr2_1) -
+                                                                                              min(sd_difs_count$attr2_1)))
+
+  sd_difs_count = sd_difs_count %>% mutate(sinc1_1 = (sinc1_1 - min(sd_difs_count$sinc1_1))/(max(sd_difs_count$sinc1_1) -
+                                                                                              min(sd_difs_count$sinc1_1)))
+  sd_difs_count = sd_difs_count %>% mutate(sinc2_1 = (sinc2_1 - min(sd_difs_count$sinc2_1))/(max(sd_difs_count$sinc2_1) -
+                                                                                              min(sd_difs_count$sinc2_1)))
+
+  sd_difs_count = sd_difs_count %>% mutate(intel1_1 = (intel1_1 -min(sd_difs_count$intel1_1))/(max(sd_difs_count$intel1_1) -
+                                                                                             min(sd_difs_count$intel1_1)))
+  sd_difs_count = sd_difs_count %>% mutate(intel2_1 = (intel2_1 - min(sd_difs_count$intel2_1))/(max(sd_difs_count$intel2_1) - min(sd_difs_count$intel2_1)))
+
+  sd_difs_count = sd_difs_count %>% mutate(fun1_1 = (fun1_1 - min(sd_difs_count$fun1_1))/(max(sd_difs_count$fun1_1) - min(sd_difs_count$fun1_1)))
+  sd_difs_count = sd_difs_count %>% mutate(fun2_1 = (fun2_1 - min(sd_difs_count$fun2_1))/(max(sd_difs_count$fun2_1) -
+                                                                                              min(sd_difs_count$fun2_1)))
+
+  sd_difs_count = sd_difs_count %>% mutate(amb1_1 = (amb1_1 - min(sd_difs_count$amb1_1))/(max(sd_difs_count$amb1_1) -
+                                                                                                  min(sd_difs_count$amb1_1)))
+  sd_difs_count = sd_difs_count %>% mutate(amb2_1 = (amb2_1 - min(sd_difs_count$amb2_1))/(max(sd_difs_count$amb2_1) -
+                                                                                                  min(sd_difs_count$amb2_1)))
+
+  sd_difs_count = sd_difs_count %>% mutate(shar1_1 = (shar1_1 - min(sd_difs_count$shar1_1))/(max(sd_difs_count$shar1_1) -
+                                                                                                     min(sd_difs_count$shar1_1)))
+  sd_difs_count = sd_difs_count %>% mutate(shar2_1 = (shar2_1 - min(sd_difs_count$shar2_1))/(max(sd_difs_count$shar2_1) -
+                                                                                                     min(sd_difs_count$shar2_1)))
+        
+  sd_difs_count = sd_difs_count %>% mutate(
+                           age_dif = abs(sd_difs_count$age - user_info$age),
+                           imprace_dif = abs(sd_difs_count$imprace - user_info$imprace),
+                           imprelig_dif = abs(sd_difs_count$imprelig - user_info$imprelig),
+                           go_out_dif = abs(sd_difs_count$go_out - user_info$go_out),
+                           sports_dif = abs(sd_difs_count$sports - user_info$sports),
+                           tvsports_dif = abs(sd_difs_count$tvsports - user_info$tvsports),
+                           exercise_dif = abs(sd_difs_count$exercise - user_info$exercise),
+                           gaming_dif = abs(sd_difs_count$gaming - user_info$gaming),
+                           clubbing_dif = abs(sd_difs_count$clubbing - user_info$clubbing),
+                           reading_dif = abs(sd_difs_count$reading - user_info$reading),
+                           shopping_dif = abs(sd_difs_count$shopping - user_info$shopping),
+                           yoga_dif = abs(sd_difs_count$yoga - user_info$yoga),
+                           attr1_1_dif = abs(sd_difs_count$attr1_1 - user_info$attr1_1),
+                           sinc1_1_dif = abs(sd_difs_count$sinc1_1 - user_info$sinc1_1),
+                           intel1_1_dif = abs(sd_difs_count$intel1_1 - user_info$intel1_1),
+                           fun1_1_dif = abs(sd_difs_count$fun1_1 - user_info$fun1_1),
+                           amb1_1_dif = abs(sd_difs_count$amb1_1 - user_info$amb1_1),
+                           shar1_1_dif = abs(sd_difs_count$shar1_1 - user_info$shar1_1),
+                           attr2_1_dif = abs(sd_difs_count$attr2_1 - user_info$attr2_1),
+                           sinc2_1_dif = abs(sd_difs_count$sinc2_1 - user_info$sinc2_1),
+                           intel2_1_dif = abs(sd_difs_count$intel2_1 - user_info$intel2_1),
+                           fun2_1_dif = abs(sd_difs_count$fun2_1 - user_info$fun2_1),
+                           amb2_1_dif = abs(sd_difs_count$amb2_1 - user_info$amb2_1),
+                           shar2_1_dif = abs(sd_difs_count$shar2_1 - user_info$shar2_1))
+        
+  id = sd_difs_count %>% select(iid)
+        
+  sd_difs_count = sd_difs_count %>% select(age_dif, imprace_dif, imprelig_dif, go_out_dif, sports_dif,
+                                           tvsports_dif, exercise_dif, gaming_dif, clubbing_dif,
+                                           reading_dif,shopping_dif, yoga_dif, attr1_1_dif, sinc1_1_dif, intel1_1_dif,
+                                           fun1_1_dif, amb1_1_dif, shar1_1_dif, attr2_1_dif,
+                                           sinc2_1_dif, intel2_1_dif, fun2_1_dif, amb2_1_dif, shar2_1_dif)
+  pred_user_0 = predict(wf_rf, sd_difs_count, type = "prob")
+  pred_user_0 = pred_user_0 %>% cbind(id) 
+  pred_user_0 = pred_user_0 %>% arrange(-pred_user_0$.pred_1)
+  
+return(pred_user_0 %>% select(iid, .pred_1))
+}
+  
+```
+
+```{r}
+cupid(iid = 0,  age = 23, imprace = 3, imprelig = 3, go_out = 7 , sports = 4, tvsports = 2, exercise = 5, gaming = 4, clubbing = 4, reading = 9, shopping = 5, yoga = 6, attr1_1 = 20, sinc1_1 = 20, intel1_1 = 20, fun1_1 = 15, amb1_1 = 20, shar1_1 = 5, attr2_1 = 15, sinc2_1 = 20 , intel2_1 = 30, fun2_1 = 15, amb2_1 = 15, shar2_1 = 5)
+```
+
