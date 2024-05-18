@@ -22,10 +22,9 @@ sd_preload = read_csv("../../../resources/speeddating_merged.csv")
 users_csv = read.csv("../../../resources/speeddating.csv")
 load("../../../resources/rf_model_cupid.RData")
 
-
-addSlider <- function(name, content) {
+addSlider <- function(name, content, max = 10) {
   return(
-    sliderInput(name, content, min = 1, max = 10, value = 1)
+    sliderInput(name, content, min = 0, max = max, value = 1)
   )
 }
 
@@ -84,33 +83,33 @@ uiUserFeaturesForm <- function() {
       
       addSlider("music", "Музыка"),
       
-      helpText("Насколько ВАМ важны следующие черты в вашем партнере? По шкале от 1 до 10"),
+      helpText("Насколько ВАМ важны следующие черты в вашем партнере? У вас есть 100 баллов. Распределите их между следующими критериями:"),
       
-      addSlider("attr", "Привлекательность"),
+      addSlider("attr", "Привлекательность", 100),
       
-      addSlider("sinc", "Искренность"),
+      addSlider("sinc", "Искренность", 100),
       
-      addSlider("intel", "Интеллект"),
+      addSlider("intel", "Интеллект", 100),
       
-      addSlider("fun", "Чувство юмора"),
+      addSlider("fun", "Чувство юмора", 100),
       
-      addSlider("amb","Амбициозность"),
+      addSlider("amb","Амбициозность", 100),
       
-      addSlider("shar", "Наличие общих интересов/хобби"),
+      addSlider("shar", "Наличие общих интересов/хобби", 100),
       
-      helpText("Как думаете, насколько вашему партнеру важны следующие характеристики в вас? По шкале от 1 до 10"),
+      helpText("Как думаете, насколько вашему партнеру важны следующие характеристики в вас? У вас есть 100 баллов. Распределите их между следующими критериями:"),
       
-      addSlider("attr_a", "Привлекательность"),
+      addSlider("attr_a", "Привлекательность", 100),
       
-      addSlider("sinc_a", "Искренность"),
+      addSlider("sinc_a", "Искренность", 100),
       
-      addSlider("intel_a", "Интеллект"),
+      addSlider("intel_a", "Интеллект", 100),
       
-      addSlider("fun_a", "Чувство юмора"),
+      addSlider("fun_a", "Чувство юмора", 100),
       
-      addSlider("amb_a", "Амбициозность"),
+      addSlider("amb_a", "Амбициозность", 100),
       
-      addSlider("shar_a", "Наличие общих интересов/хобби")
+      addSlider("shar_a", "Наличие общих интересов/хобби", 100)
     )
   )
 }
@@ -696,7 +695,6 @@ changeResColNames <- function(res) {
                      "Важно, чтобы партнер ценил привлекательность", "Важно, чтобы партнер ценил искренность",
                      "Важно, чтобы партнер ценил интеллект", "Важно, чтобы партнер ценил чувство юмора",
                      "Важно, чтобы партнер ценил амбициозность", "Важно, чтобы партнер ценил наличие общих интересов", "id")
-  print(colnames(res))
   return(res)
 }
 
